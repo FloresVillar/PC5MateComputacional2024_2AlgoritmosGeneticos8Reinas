@@ -56,6 +56,7 @@ public class The8QueensPuzzle{
              //funcion aptitud fitness INICIO
         //------------------------------------------------------------------------
         poblacion.CalcularFitness();
+        
         // ----fucion aptitud fitness FIN
         //-----------------------------------------------------------------------
         for(int i=0;i<poblacion.cromosomas.length;i++){
@@ -71,30 +72,21 @@ public class The8QueensPuzzle{
         for(int i=0;i<poblacion.cromosomas.length;i++){
             System.out.printf("[%1.5f,%1.5f)\n",poblacion.cromosomas[i].rango.lInferior,poblacion.cromosomas[i].rango.lSuperior);
         }
+        poblacion.EstablecerElite();
         //--------SELECCION---------------------generar el numero aleatorio para escoger al par que van a hacer el crossover
         Random random=new Random();
         double variableCross;
         //si variableCross esta en alguno de los intervalos
         int [] indiceElegidos = new int[2];
-        int cont = 0;
-        while(cont < indiceElegidos.length){
-            variableCross = random.nextDouble();
-            for(int i=0;i<poblacion.cromosomas.length;i++){
-                if(poblacion.cromosomas[i].rango.pertenece(variableCross)){
-                    if(poblacion.cromosomas[i].rango.idRango!=((i==1)?indiceElegidos[i-1]:-1)){   
-                        System.out.printf(" idRango: %d variableCross: %1.5f\n",poblacion.cromosomas[i].rango.idRango,variableCross);        //ind actual diferente del anterior)
-                        indiceElegidos[cont] = poblacion.cromosomas[i].rango.idRango;
-                        cont++;
-                        break;
-                    }else{
-                        cont = cont ;
-                        break;
-                    }
-                }
+        variableCross = random.nextDouble();
+        for(int i=0;i<poblacion.cromosomas.length;i++){
+            if(poblacion.cromosomas[i].rango.pertenece(variableCross)){
+                indiceElegidos[0] = poblacion.cromosomas[i].indOrden;
+                indiceElegidos[1]=(int)Math.abs(indiceElegidos[0]-1);
             }
         }
         //imprimiendo los elegidos
-         System.out.println("padres");
+        System.out.println("padres");
         for(int i=0;i<indiceElegidos.length;i++){
             for(int j=0;j<poblacion.cromosomas[0].genes.length;j++){
                 System.out.printf("%d\t",poblacion.cromosomas[indiceElegidos[i]].genes[j]);
@@ -111,46 +103,52 @@ public class The8QueensPuzzle{
                 hijos[i].genes[j] = poblacion.cromosomas[indiceElegidos[j>3?(int)Math.abs(i-1):i]].genes[j];
             }
         }
-        //imprimiendo cromosomasHijos
-        System.out.println("hijos cross");
-        for(int i=0;i<hijos.length;i++){
-            for(int j=0;j<hijos[i].genes.length;j++){
-                System.out.printf("%d\t",hijos[i].genes[j]);
-            }
-            System.out.println();
-        }
-        //corregir si hay repetidos
-        int[]cuenta;
-        int[]arr; 
+        //corregir si hay repetidos, imprime hijos visualiza,luego imprime corregidos
         for(int i = 0;i<hijos.length;i++){
             //que genes faltan
-            arr = new int[]{-1,-1,-1,-1,-1,-1,-1,-1};
-            cuenta=new int[]{0,0,0,0,0,0,0,0};
-            for(int k=0;k<cuenta.length;k++){
+            int []arr = new int[]{-1,-1,-1,-1,-1,-1,-1,-1};
+            int[]cuenta=new int[]{0,0,0,0,0,0,0,0};
+            for(int k=0;k<cuenta.length;k++){   
                 for(int j=0;j<hijos[i].genes.length;j++){
-                    if((k+1)==hijos[i].genes[j]){
+                    if(hijos[i].genes[j]==(k+1)){
                         //aumenta si el elemento esta
                         arr[k]=j; //el indice ultimo donde se repite
                         cuenta[k]++;    //para el repetido  2
                     }
                 }
             }
-            //cuales se repiten
+            //imprimir hijo[i]
+            System.out.println("hijo "+(i+1));
+            for(int j=0;j<hijos[i].genes.length;j++){
+                System.out.printf("%d\t",hijos[i].genes[j]);
+            }
+            //imprimir arr y cuenta
+            System.out.println("\narr\t\t\tcuenta");
             for(int k=0;k<arr.length;k++){
-                //si no esta en los genes
-                if(arr[k]==-1){
-                    //determinar el que se repite
-                    for(int j=0;j<cuenta.length;j++){
-                        if(cuenta[j]==2){
-                            hijos[i].genes[arr[j]] = k+1;
+                System.out.printf("%d ",arr[k]);
+            }
+            System.err.printf("\t");
+            for(int k=0;k<cuenta.length;k++){
+                System.out.printf("%d ",cuenta[k]);
+            }
+            System.out.println();
+            //cuales se repiten
+            //buscar en cuenta cuenta[k]==2 , buscar en arr[l]=-1, obtener indice ind ←arr[k], hijos.genes[ind] = (l+1)
+            for(int k=0;k<cuenta.length;k++){
+                if(cuenta[k]==2){
+                    int ind = arr[k];
+                    for(int l=0;l<arr.length;l++){
+                        if(arr[l]==-1){
+                            hijos[i].genes[ind]=l+1;
+                            arr[l]++;
                             break;
                         }
                     }
                 }
-            }
+            } 
         }
         //imprimiendo cromosomasHijos
-        System.out.println("hijos cross corregidos");
+        System.out.println("\nhijos cross corregidos");
         for(int i=0;i<hijos.length;i++){
             for(int j=0;j<hijos[i].genes.length;j++){
                 System.out.printf("%d\t",hijos[i].genes[j]);
@@ -160,32 +158,30 @@ public class The8QueensPuzzle{
         //-----------------------MUTACION----------------------------
         //-----mutar(intercambiar posicion de genes)-----------------
         
-        if(contadorGlobal%3==0){
-            for(int i=0;i<hijos.length;i++){
+        for(int i=0;i<hijos.length;i++){
                 int ind1 = rand.nextInt(8);
-                int ind2 = (int)(Math.abs(ind1 -1));
+                int ind2 = rand.nextInt(8);
                 int temp =hijos[i].genes[ind1];
                 hijos[i].genes[ind1] = hijos[i].genes[ind2];
                 hijos[i].genes[ind2] = temp; 
             }
             //----------------------------------------------------
-            System.out.println("hijos mutados");
-            for(int i=0;i<hijos.length;i++){
+        System.out.println("hijos mutados");
+        for(int i=0;i<hijos.length;i++){
                 for(int j=0;j<hijos[i].genes.length;j++){
                     System.out.printf("%d\t",hijos[i].genes[j]);
                 }
                 System.out.println();
-            }
         }
         //---------------------------------------------------------
-        poblacion.ImprimirCromosomas();
+        poblacion.ImprimirCromosomas("antes de insertar hijos");
         //reemplazando los 2 mas bajos
-        poblacion.CalcularFitness(hijos[0]);
-        poblacion.CalcularFitness(hijos[1]);
         poblacion.InsertarHijos(hijos);
-        poblacion.ImprimirCromosomas();
+        poblacion.ImprimirCromosomas("luego de insertar hijos");
+        poblacion.insertarElite();
+        poblacion.ImprimirCromosomas("luego de insertar elite");
         for(int i =0;i<poblacion.cromosomas.length;i++){
-            flagGlobal =(poblacion.cromosomas[i].fitness ==1);
+            flagGlobal =(poblacion.cromosomas[i].fitness ==(double)1);
         }
         contadorGlobal ++;
        }//fin While Global
@@ -229,15 +225,21 @@ class Poblacion{
     }//---------------------------------------------------------------------------
     public static void CalcularFitness(Cromosoma cromosoma){
          //C[i] - i para la ascendente       C[i]+i para para la descendente
-         int conflictos = 0;
+         int conflictos = 0; 
+         boolean [][] paresVisitados = new boolean[8][8];
          for(int j=0;j<cromosoma.genes.length;j++){
              //luego del elemento
              for(int k=0;k<cromosoma.genes.length;k++){
                  //si conflicto  conflictos++;
                 if(k!=j){
                      if((cromosoma.genes[k]-(k+1) )==(cromosoma.genes[j]-(j+1))){
+                        //par visitado true;
                          //System.out.printf("ascendente:(%d,%d)~(%d,%d)\n",cromosoma.genes[k],(k+1),cromosoma.genes[j],(j+1));
-                         conflictos++;
+                        if(paresVisitados[cromosoma.genes[k]-1][k]==false){
+                            conflictos++;
+                            paresVisitados[cromosoma.genes[k]-1][k]=true;
+                            paresVisitados[cromosoma.genes[j]-1][j]=true;
+                        }
                      }
                      if((cromosoma.genes[k]+(k+1))==(cromosoma.genes[j]+(j+1))){
                          //System.out.printf("descendente:(%d,%d)~(%d,%d)\n",cromosoma.genes[k],(k+1),cromosoma.genes[j],(j+1));
@@ -295,10 +297,54 @@ public static void CalcularFitness(){
          System.out.println();
          }
          CalcularProbabilidades(); // calcula las probabilidades
-         EstablecerElite(); // establece el elite
-
+         //EstablecerElite(); // establece el elite
     }
     //------------------------------------------------------------------------------
+    public static void CalcularFitnessInterno(){
+        for(int i=0;i<cromosomas.length;i++){
+                //C[i] - i para la ascendente       C[i]+i para para la descendente
+             /*String [][] tabla = new String[8][8];
+             for(int f=0;f<8;f++){
+                 for(int c=0;c<8;c++){
+                     tabla[f][c] = "| |";
+                 }
+             }
+             for(int l=0;l<cromosomas[i].genes.length;l++){
+                 tabla[cromosomas[i].genes[l]-1][l]="|*|";
+             }
+             System.out.println();
+             for(int f=0;f<8;f++){
+                 for(int c=0;c<8;c++){
+                     System.out.print(tabla[f][c]);
+                 }
+                 System.out.println();
+             } */
+             int conflictos = 0;
+             for(int j=0;j<cromosomas[0].genes.length;j++){
+                 //luego del elemento
+                 for(int k=0;k<cromosomas[i].genes.length;k++){
+                     //si conflicto  conflictos++;
+                    if(k!=j){
+                         if((cromosomas[i].genes[k]-(k+1) )==(cromosomas[i].genes[j]-(j+1))){
+                             //System.out.printf("ascendente:(%d,%d)~(%d,%d)\n",cromosomas[i].genes[k],(k+1),cromosomas[i].genes[j],(j+1));
+                             conflictos++;
+                         }
+                         if((cromosomas[i].genes[k]+(k+1))==(cromosomas[i].genes[j]+(j+1))){
+                             //System.out.printf("descendente:(%d,%d)~(%d,%d)\n",cromosomas[i].genes[k],(k+1),cromosomas[i].genes[j],(j+1));
+                             conflictos++;
+                         }
+                    }
+                 }
+             }
+             System.out.printf("conflictos cromosoma %d :%d\n",(cromosomas[i].indOrden+1),conflictos);
+             double factor =Math.pow(10,5);
+             cromosomas[i].fitness = Math.round(factor/(1+conflictos))/factor;
+             System.out.println();
+             }
+             CalcularProbabilidades(); // calcula las probabilidades
+             //EstablecerElite(); // establece el elite
+        }
+    //-------------------------------------------------------------------------------
     public static void EstablecerElite(){
         double mayorFitness = elite.fitness;
         int indMayor = -1;
@@ -311,7 +357,6 @@ public static void CalcularFitness(){
         if(indMayor>-1){
             elite = new Cromosoma(cromosomas[indMayor]); 
         }
-
     }
     //---------------------------------------------------------------------------
     public static double FitnessTotal(){
@@ -338,8 +383,8 @@ public static void CalcularFitness(){
         }
     }
     //------------------------------------------------------------------
-    public static void ImprimirCromosomas(){
-        System.out.println();
+    public static void ImprimirCromosomas(String cad){
+        System.out.println(cad);
         for(int i= 0;i<cromosomas.length;i++){
             for(int j=0;j<cromosomas[i].genes.length;j++){
                 System.out.printf("%d\t",cromosomas[i].genes[j]);
@@ -358,8 +403,26 @@ public static void CalcularFitness(){
         //corregir los indices
         for(int i = 0;i<cromosomas.length;i++){
             cromosomas[i].indOrden = i;
-        } 
+        }
+        CalcularFitnessInterno();
+        //insertarEite();
     }
+    //-----------------------------------------------------------------------------------------------------------------------
+    public static void insertarElite(){
+        int ind=-1;
+        boolean flag = false;
+        double fitElite = elite.fitness;
+        for(int i=0;i<cromosomas.length;i++){
+            if(fitElite>cromosomas[i].fitness){
+                ind = i;
+                flag = true;
+            }
+        }
+        if(flag){
+            cromosomas[ind] = new Cromosoma(elite);
+        }
+    }
+    //-------------------------------------------------------------------------------------------------------------------------
 }
 //============================================================================
 class Cromosoma{
