@@ -74,9 +74,9 @@ public class The8QueensPuzzle{
         }
         poblacion.EstablecerElite();
         //-testeando CalcularFitness con pro dinamica
-        System.out.println("TEST CALCULARFITNEE DINAMICA");
+        System.out.println("ELITE");
         poblacion.CalcularFitness(poblacion.elite);
-        System.out.println("FIN TEST CALCULARFITNESS DINAMICA");
+        System.out.println("FIN ELITE");
         //--------SELECCION---------------------generar el numero aleatorio para escoger al par que van a hacer el crossover
         Random random=new Random();
         double variableCross;
@@ -309,7 +309,7 @@ public static void CalcularFitness(){
                 if(k!=j){
                      if((cromosomas[i].genes[k]-(k+1) )==(cromosomas[i].genes[j]-(j+1))){
                         //par visitado true;
-                         //System.out.printf("ascendente:(%d,%d)~(%d,%d)\n",cromosoma.genes[k],(k+1),cromosoma.genes[j],(j+1));
+                         System.out.printf("ascendente:(%d,%d)~(%d,%d)\n",cromosomas[i].genes[k],(k+1),cromosomas[i].genes[j],(j+1));
                         if(paresVisitadosA[cromosomas[i].genes[k]-1][k]==false){
                             conflictos++;
                             paresVisitadosA[cromosomas[i].genes[k]-1][k]=true;
@@ -317,7 +317,7 @@ public static void CalcularFitness(){
                         }
                      }
                      if((cromosomas[i].genes[k]+(k+1))==(cromosomas[i].genes[j]+(j+1))){
-                         //System.out.printf("descendente:(%d,%d)~(%d,%d)\n",cromosoma.genes[k],(k+1),cromosoma.genes[j],(j+1));
+                         System.out.printf("descendente:(%d,%d)~(%d,%d)\n",cromosomas[i].genes[k],(k+1),cromosomas[i].genes[j],(j+1));
                          if(paresVisitadosD[cromosomas[i].genes[k]-1][k]==false){
                             conflictos++;
                             paresVisitadosD[cromosomas[i].genes[k]-1][k]=true;
@@ -365,7 +365,7 @@ public static void CalcularFitness(){
                 if(k!=j){
                      if((cromosomas[i].genes[k]-(k+1) )==(cromosomas[i].genes[j]-(j+1))){
                         //par visitado true;
-                         //System.out.printf("ascendente:(%d,%d)~(%d,%d)\n",cromosoma.genes[k],(k+1),cromosoma.genes[j],(j+1));
+                         //System.out.printf("ascendente:(%d,%d)~(%d,%d)\n",cromosomas[i].genes[k],(k+1),cromosomas[i].genes[j],(j+1));
                         if(paresVisitadosA[cromosomas[i].genes[k]-1][k]==false){
                             conflictos++;
                             paresVisitadosA[cromosomas[i].genes[k]-1][k]=true;
@@ -373,7 +373,7 @@ public static void CalcularFitness(){
                         }
                      }
                      if((cromosomas[i].genes[k]+(k+1))==(cromosomas[i].genes[j]+(j+1))){
-                         //System.out.printf("descendente:(%d,%d)~(%d,%d)\n",cromosoma.genes[k],(k+1),cromosoma.genes[j],(j+1));
+                         //System.out.printf("descendente:(%d,%d)~(%d,%d)\n",cromosomas[i].genes[k],(k+1),cromosomas[i].genes[j],(j+1));
                          if(paresVisitadosD[cromosomas[i].genes[k]-1][k]==false){
                             conflictos++;
                             paresVisitadosD[cromosomas[i].genes[k]-1][k]=true;
