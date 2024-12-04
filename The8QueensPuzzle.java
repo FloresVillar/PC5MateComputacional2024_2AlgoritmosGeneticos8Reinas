@@ -158,29 +158,30 @@ public class The8QueensPuzzle{
             System.out.println();
         }
         //-----------------------MUTACION----------------------------
-        //-----mutar(intercambiar posicion de genes)------------ordenar segun fitness y reemplazar los de abajo(menores)
-        int indMutar ;
-        int newElemFila ; 
-        for(int i=0;i<hijos.length;i++){
-            int ind1 = rand.nextInt(8);
-            int ind2 = (int)(Math.abs(ind1 -1));
-            int temp =hijos[i].genes[ind1];
-            hijos[i].genes[ind1] = hijos[i].genes[ind2];
-            hijos[i].genes[ind2] = temp; 
-        }
-        //----------------------------------------------------
-        System.out.println("hijos mutados");
-        for(int i=0;i<hijos.length;i++){
-            for(int j=0;j<hijos[i].genes.length;j++){
-                System.out.printf("%d\t",hijos[i].genes[j]);
+        //-----mutar(intercambiar posicion de genes)-----------------
+        
+        if(contadorGlobal%3==0){
+            for(int i=0;i<hijos.length;i++){
+                int ind1 = rand.nextInt(8);
+                int ind2 = (int)(Math.abs(ind1 -1));
+                int temp =hijos[i].genes[ind1];
+                hijos[i].genes[ind1] = hijos[i].genes[ind2];
+                hijos[i].genes[ind2] = temp; 
             }
-            System.out.println();
+            //----------------------------------------------------
+            System.out.println("hijos mutados");
+            for(int i=0;i<hijos.length;i++){
+                for(int j=0;j<hijos[i].genes.length;j++){
+                    System.out.printf("%d\t",hijos[i].genes[j]);
+                }
+                System.out.println();
+            }
         }
         //---------------------------------------------------------
         poblacion.ImprimirCromosomas();
-        poblacion.OrdenarIndices();
-        poblacion.ImprimirCromosomas();
         //reemplazando los 2 mas bajos
+        poblacion.CalcularFitness(hijos[0]);
+        poblacion.CalcularFitness(hijos[1]);
         poblacion.InsertarHijos(hijos);
         poblacion.ImprimirCromosomas();
         for(int i =0;i<poblacion.cromosomas.length;i++){
@@ -324,7 +325,7 @@ public static void CalcularFitness(){
     public static void CalcularProbabilidades(){
         double fitnesTotal = FitnessTotal(); 
         for(int i=0;i<(probabilidades.length)&&(i<cromosomas.length);i++){
-            //probabilidades[i] = cromosomas[i].fitness/fitnesTotal;
+            //probabilidades[i] = cromo58somas[i].fitness/fitnesTotal;
             cromosomas[i].probabilidad = cromosomas[i].fitness/fitnesTotal;
         }
     }
@@ -349,12 +350,15 @@ public static void CalcularFitness(){
     }
     //---------------------------------------------------------------------------------------------
     public static void InsertarHijos(Cromosoma[] cromos){
-        for(int i = 0; i<cromos.length;i++){
-            for(int j=0;j<cromos[0].genes.length;j++){
-                cromosomas[i].genes[j] = cromos[i].genes[j];
-            }
-            CalcularFitness(cromosomas[i]);
-        }
+        Random rand = new Random();
+        int ind1 = rand.nextInt(cromosomas.length);
+        int ind2 = (int)(Math.abs(ind1 -1));
+        cromosomas[ind1] = new Cromosoma(cromos[0]);
+        cromosomas[ind2] = new Cromosoma(cromos[1]);
+        //corregir los indices
+        for(int i = 0;i<cromosomas.length;i++){
+            cromosomas[i].indOrden = i;
+        } 
     }
 }
 //============================================================================
