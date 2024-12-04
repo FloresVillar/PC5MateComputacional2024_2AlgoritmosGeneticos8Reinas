@@ -52,7 +52,7 @@ public class The8QueensPuzzle{
        //----------------WHILE-------------------(acabar si fitnes de algun cromosoma es 1)
        boolean flagGlobal = false;
        int contadorGlobal =0;
-       while(!flagGlobal&&(contadorGlobal<5)){
+       while(!flagGlobal&&(contadorGlobal<200)){
              //funcion aptitud fitness INICIO
         //------------------------------------------------------------------------
         poblacion.CalcularFitness();
@@ -73,6 +73,10 @@ public class The8QueensPuzzle{
             System.out.printf("[%1.5f,%1.5f)\n",poblacion.cromosomas[i].rango.lInferior,poblacion.cromosomas[i].rango.lSuperior);
         }
         poblacion.EstablecerElite();
+        //-testeando CalcularFitness con pro dinamica
+        System.out.println("TEST CALCULARFITNEE DINAMICA");
+        poblacion.CalcularFitness(poblacion.elite);
+        System.out.println("FIN TEST CALCULARFITNESS DINAMICA");
         //--------SELECCION---------------------generar el numero aleatorio para escoger al par que van a hacer el crossover
         Random random=new Random();
         double variableCross;
@@ -225,8 +229,25 @@ class Poblacion{
     }//---------------------------------------------------------------------------
     public static void CalcularFitness(Cromosoma cromosoma){
          //C[i] - i para la ascendente       C[i]+i para para la descendente
-         int conflictos = 0; 
-         boolean [][] paresVisitados = new boolean[8][8];
+         String [][] tabla = new String[8][8];
+         for(int f=0;f<8;f++){
+             for(int c=0;c<8;c++){
+                 tabla[f][c] = "| |";
+             }
+         }
+         for(int l=0;l<cromosoma.genes.length;l++){
+             tabla[cromosoma.genes[l]-1][l]="|*|";
+         }
+         System.out.println();
+         for(int f=0;f<8;f++){
+             for(int c=0;c<8;c++){
+                 System.out.print(tabla[f][c]);
+             }
+             System.out.println();
+         } 
+         boolean [][] paresVisitadosA = new boolean[8][8];
+         boolean [][] paresVisitadosD = new boolean[8][8];
+         int conflictos = 0;
          for(int j=0;j<cromosoma.genes.length;j++){
              //luego del elemento
              for(int k=0;k<cromosoma.genes.length;k++){
@@ -235,25 +256,29 @@ class Poblacion{
                      if((cromosoma.genes[k]-(k+1) )==(cromosoma.genes[j]-(j+1))){
                         //par visitado true;
                          //System.out.printf("ascendente:(%d,%d)~(%d,%d)\n",cromosoma.genes[k],(k+1),cromosoma.genes[j],(j+1));
-                        if(paresVisitados[cromosoma.genes[k]-1][k]==false){
+                        if(paresVisitadosA[cromosoma.genes[k]-1][k]==false){
                             conflictos++;
-                            paresVisitados[cromosoma.genes[k]-1][k]=true;
-                            paresVisitados[cromosoma.genes[j]-1][j]=true;
+                            paresVisitadosA[cromosoma.genes[k]-1][k]=true;
+                            paresVisitadosA[cromosoma.genes[j]-1][j]=true;
                         }
                      }
                      if((cromosoma.genes[k]+(k+1))==(cromosoma.genes[j]+(j+1))){
                          //System.out.printf("descendente:(%d,%d)~(%d,%d)\n",cromosoma.genes[k],(k+1),cromosoma.genes[j],(j+1));
-                         conflictos++;
-                     }
-                }
+                         if(paresVisitadosD[cromosoma.genes[k]-1][k]==false){
+                            conflictos++;
+                            paresVisitadosD[cromosoma.genes[k]-1][k]=true;
+                            paresVisitadosD[cromosoma.genes[j]-1][j]=true;
+                        }
+                    }
+                }  
              }
-              
-         }
-         //System.out.printf("conflictos cromosoma %d :%d\n",(cromosoma.indOrden+1),conflictos);
-         double factor =Math.pow(10,5);
-         cromosoma.fitness = Math.round(factor/(1+conflictos))/factor;
-         System.out.println();
-    }
+        }
+        //System.out.printf("conflictos cromosoma %d :%d\n",(cromosoma.indOrden+1),conflictos);
+        double factor =Math.pow(10,5);
+        cromosoma.fitness = Math.round(factor/(1+conflictos))/factor;
+        System.out.printf("conflictos: %dfitness: %1.5f",conflictos,cromosoma.fitness);
+    
+}
     //---------------------------------------------------------------------------
 public static void CalcularFitness(){
     for(int i=0;i<cromosomas.length;i++){
@@ -274,6 +299,8 @@ public static void CalcularFitness(){
              }
              System.out.println();
          }
+         boolean [][] paresVisitadosA = new boolean[8][8];
+         boolean [][] paresVisitadosD = new boolean[8][8];
          int conflictos = 0;
          for(int j=0;j<cromosomas[0].genes.length;j++){
              //luego del elemento
@@ -281,16 +308,25 @@ public static void CalcularFitness(){
                  //si conflicto  conflictos++;
                 if(k!=j){
                      if((cromosomas[i].genes[k]-(k+1) )==(cromosomas[i].genes[j]-(j+1))){
-                         System.out.printf("ascendente:(%d,%d)~(%d,%d)\n",cromosomas[i].genes[k],(k+1),cromosomas[i].genes[j],(j+1));
-                         conflictos++;
+                        //par visitado true;
+                         //System.out.printf("ascendente:(%d,%d)~(%d,%d)\n",cromosoma.genes[k],(k+1),cromosoma.genes[j],(j+1));
+                        if(paresVisitadosA[cromosomas[i].genes[k]-1][k]==false){
+                            conflictos++;
+                            paresVisitadosA[cromosomas[i].genes[k]-1][k]=true;
+                            paresVisitadosA[cromosomas[i].genes[j]-1][j]=true;
+                        }
                      }
                      if((cromosomas[i].genes[k]+(k+1))==(cromosomas[i].genes[j]+(j+1))){
-                         System.out.printf("descendente:(%d,%d)~(%d,%d)\n",cromosomas[i].genes[k],(k+1),cromosomas[i].genes[j],(j+1));
-                         conflictos++;
-                     }
-                }
+                         //System.out.printf("descendente:(%d,%d)~(%d,%d)\n",cromosoma.genes[k],(k+1),cromosoma.genes[j],(j+1));
+                         if(paresVisitadosD[cromosomas[i].genes[k]-1][k]==false){
+                            conflictos++;
+                            paresVisitadosD[cromosomas[i].genes[k]-1][k]=true;
+                            paresVisitadosD[cromosomas[i].genes[j]-1][j]=true;
+                        }
+                    }
+                }  
              }
-         }
+        }
          System.out.printf("conflictos cromosoma %d :%d\n",(cromosomas[i].indOrden+1),conflictos);
          double factor =Math.pow(10,5);
          cromosomas[i].fitness = Math.round(factor/(1+conflictos))/factor;
@@ -319,23 +355,34 @@ public static void CalcularFitness(){
                  }
                  System.out.println();
              } */
-             int conflictos = 0;
-             for(int j=0;j<cromosomas[0].genes.length;j++){
-                 //luego del elemento
-                 for(int k=0;k<cromosomas[i].genes.length;k++){
-                     //si conflicto  conflictos++;
-                    if(k!=j){
-                         if((cromosomas[i].genes[k]-(k+1) )==(cromosomas[i].genes[j]-(j+1))){
-                             //System.out.printf("ascendente:(%d,%d)~(%d,%d)\n",cromosomas[i].genes[k],(k+1),cromosomas[i].genes[j],(j+1));
-                             conflictos++;
-                         }
-                         if((cromosomas[i].genes[k]+(k+1))==(cromosomas[i].genes[j]+(j+1))){
-                             //System.out.printf("descendente:(%d,%d)~(%d,%d)\n",cromosomas[i].genes[k],(k+1),cromosomas[i].genes[j],(j+1));
-                             conflictos++;
-                         }
+             boolean [][] paresVisitadosA = new boolean[8][8];
+         boolean [][] paresVisitadosD = new boolean[8][8];
+         int conflictos = 0;
+         for(int j=0;j<cromosomas[0].genes.length;j++){
+             //luego del elemento
+             for(int k=0;k<cromosomas[i].genes.length;k++){
+                 //si conflicto  conflictos++;
+                if(k!=j){
+                     if((cromosomas[i].genes[k]-(k+1) )==(cromosomas[i].genes[j]-(j+1))){
+                        //par visitado true;
+                         //System.out.printf("ascendente:(%d,%d)~(%d,%d)\n",cromosoma.genes[k],(k+1),cromosoma.genes[j],(j+1));
+                        if(paresVisitadosA[cromosomas[i].genes[k]-1][k]==false){
+                            conflictos++;
+                            paresVisitadosA[cromosomas[i].genes[k]-1][k]=true;
+                            paresVisitadosA[cromosomas[i].genes[j]-1][j]=true;
+                        }
+                     }
+                     if((cromosomas[i].genes[k]+(k+1))==(cromosomas[i].genes[j]+(j+1))){
+                         //System.out.printf("descendente:(%d,%d)~(%d,%d)\n",cromosoma.genes[k],(k+1),cromosoma.genes[j],(j+1));
+                         if(paresVisitadosD[cromosomas[i].genes[k]-1][k]==false){
+                            conflictos++;
+                            paresVisitadosD[cromosomas[i].genes[k]-1][k]=true;
+                            paresVisitadosD[cromosomas[i].genes[j]-1][j]=true;
+                        }
                     }
-                 }
+                }  
              }
+        }
              System.out.printf("conflictos cromosoma %d :%d\n",(cromosomas[i].indOrden+1),conflictos);
              double factor =Math.pow(10,5);
              cromosomas[i].fitness = Math.round(factor/(1+conflictos))/factor;
